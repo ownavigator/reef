@@ -1,8 +1,7 @@
 #pragma once
 
+#include "reef-macro.h"
 #include <cstdint>
-#include <cstring>
-#include <type_traits>
 
 namespace reef {
 /*
@@ -40,54 +39,24 @@ typedef i32 isize;
 #endif
 
 /*
- * Allocator type
+ * Defer operations to the scope.
  */
 
-struct Allocator {
-    virtual u8* alloc(usize size, usize align) = 0;
-    virtual void dealloc(u8* ptr, usize size, usize align) = 0;
+template <typename F> struct Defer {
+    F f;
+    ~Defer() { f(); }
 };
 
-template <typename T>
-inline T* alloc(Allocator* allocator, usize count = 1)
-{
-    return (T*)allocator->alloc(sizeof(T) * count, alignof(T));
-}
+template <typename F> inline Defer<F> defer(F f) { return Defer<F> { f }; }
 
-template <typename T>
-inline void dealloc(Allocator* allocator, T* ptr, usize count = 1)
-{
-    allocator->dealloc((u8*)ptr, sizeof(T) * count, alignof(T));
-}
+#define reef_defer(__code)                                                     \
+    auto REEF_SYM(_defer_) = reef::defer([&]() { __code; })
 
-template <typename T>
-inline T* copy(Allocator* allocator, const T* src, usize count = 1)
-{
-    static_assert(std::is_trivially_copyable_v<T>,
-        "copy: T must be trivially copyable");
-
-    T* dst = alloc<T>(allocator, count);
-    std::memcpy(dst, src, sizeof(T) * count);
-    return dst;
-}
-
-/*
- * Unicode string types
- */
-
-struct Wide_Str {
-    i16* ptr;
-    usize len;
-};
-
-inline Wide_Str wide_str_nocopy_new(i16* ptr, usize len)
-{
-    return Wide_Str { ptr, len };
-}
-
-bool wide_str_from_utf8(Wide_Str* uninit, u8 const* str, usize str_len,
-    Allocator* allocator);
-
-void wide_str_drop(Wide_Str* str, Allocator* allocator);
+#define reef_err_defer(__err_cond, __code)                                     \
+    auto REEF_SYM(_defer_) = reef::defer([&]() {                               \
+        if (__err_cond) {                                                      \
+            __code;                                                            \
+        }                                                                      \
+    })
 
 } // namespace reef

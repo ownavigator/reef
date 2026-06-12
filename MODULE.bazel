@@ -12,6 +12,13 @@ git_override(
     commit = "edda2144879071f27c84df7bf178b13982d8eeda",
 )
 
+bazel_dep(name = "utf8proc")
+git_override(
+    module_name = "utf8proc",
+    remote = "https://github.com/ownavigator/utf8proc.git",
+    commit = "4c504745cc6211ee0ebae818f6b07ced2f289ad1",
+)
+
 bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
 git_override(
     module_name = "hedron_compile_commands",

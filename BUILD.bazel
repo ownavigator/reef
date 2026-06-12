@@ -5,5 +5,9 @@ cc_library(
     srcs = ["//src:srcs"],
     hdrs = ["//include:hdrs"],
     includes = ["include"],
+    deps = [
+        "@simdutf//:simdutf",
+        "@utf8proc//:utf8proc",
+    ],
     visibility = ["//visibility:public"],
 )

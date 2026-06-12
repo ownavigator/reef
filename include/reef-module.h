@@ -8,6 +8,5 @@ namespace reef {
  * runtime.
  */
 
-struct Module {
-};
+struct Module { };
 } // namespace reef
