@@ -3,7 +3,6 @@ filegroup(
     srcs = [
         "reef-base.h",
         "reef-module.h",
-        "reef-macro.h",
         "reef-str.h",
         "reef-allocator.h",
     ],
