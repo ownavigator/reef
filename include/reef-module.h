@@ -9,6 +9,5 @@ namespace reef {
  */
 
 struct Module {
-    
 };
 } // namespace reef

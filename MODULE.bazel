@@ -4,3 +4,17 @@ module(
 )
 
 bazel_dep(name = "rules_cc", version = "0.2.19")
+
+bazel_dep(name = "simdutf")
+git_override(
+    module_name = "simdutf",
+    remote = "https://github.com/ownavigator/simdutf.git",
+    commit = "edda2144879071f27c84df7bf178b13982d8eeda",
+)
+
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
+git_override(
+    module_name = "hedron_compile_commands",
+    remote = "https://github.com/ultimateanu/bazel-compile-commands-extractor.git",
+    commit = "2dc498f24587eccc2752f8a892da004d9baa8318",
+)

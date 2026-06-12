@@ -2,6 +2,7 @@
 filegroup(
     name = "srcs",
     srcs = [
+        "base.cc"
     ],
     visibility = ["//:__pkg__"],
 )

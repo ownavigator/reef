@@ -1,7 +1,8 @@
 filegroup(
     name = "hdrs",
     srcs = [
-        "reef-base.h"
+        "reef-base.h",
+        "reef-module.h",
     ],
     visibility = ["//:__pkg__"],
 )
