@@ -130,7 +130,7 @@ BreakBeforeCloseBracketIf: false
 BreakBeforeCloseBracketLoop: false
 BreakBeforeCloseBracketSwitch: false
 BreakBeforeConceptDeclarations: Always
-BreakBeforeBraces: WebKit
+BreakBeforeBraces: Allman
 BreakBeforeInlineASMColon: OnlyMultiline
 BreakBeforeTemplateCloser: false
 BreakBeforeTernaryOperators: true

@@ -4,31 +4,32 @@
 #include "reef-base.h"
 #include <cassert>
 
-namespace reef {
+namespace reef
+{
 
-/*
- * Unicode string types
- */
-
-struct Wide_Str {
-    u16* ptr;
-    usize len;
+/** A UTF-16 string. Caller owns the buffer. */
+struct Wide_Str
+{
+    u16* ptr; /**< UTF-16 code units */
+    usize len; /**< length in u16 units */
 };
 
-inline Wide_Str wide_str_nocopy_new(u16* ptr, usize len)
+/** Wraps an existing u16 buffer without copying. */
+inline Wide_Str wide_str_new_nocopy(u16* ptr, usize len)
 {
     return Wide_Str { ptr, len };
 }
 
+/** Converts a UTF-8 string to UTF-16, allocating into `uninit`. Returns false
+ * on allocation/conversion failure. */
 bool wide_str_from_utf8(
     Wide_Str* uninit, u8 const* str, usize str_len, Allocator* allocator);
 
-isize wide_str_at(Wide_Str const* str, usize idx, i32* codepoint_ref);
+/** Decodes the codepoint at `idx` into `codepoint_ref`; returns the number of
+ * u16 units consumed, or a negative utf8proc error code. */
+isize wide_str_at(Wide_Str const* str, usize idx, i32* out_codepoint);
 
-/*
- * Note: Caller ensures that the string is dropable.
- */
-
+/** Frees the buffer owned by `str`. Caller ensures the string is dropable. */
 void wide_str_drop(Wide_Str* str, Allocator* allocator);
 
 }

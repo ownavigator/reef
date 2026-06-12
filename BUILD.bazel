@@ -1,10 +1,16 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+COPTS = [
+    "-fno-exceptions",
+    "-fno-rtti",
+]
+
 cc_library(
     name = "reef",
     srcs = ["//src:srcs"],
     hdrs = ["//include:hdrs"],
     includes = ["include"],
+    copts = COPTS,
     deps = [
         "@simdutf//:simdutf",
         "@utf8proc//:utf8proc",
