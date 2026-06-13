@@ -4,11 +4,11 @@
 namespace reef
 {
 
-/** The JavaScript module */
+/** A JavaScript source file and its compilation state. */
 struct Module
 {
-    Wide_Str path;
-    Wide_Str content;
+    Wide_Str path; /**< Owns the path the source was loaded from. */
+    Wide_Str content; /**< Owns the decoded UTF-16 source text. */
 };
 
 inline Module module_new(Wide_Str path, Wide_Str content)

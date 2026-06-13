@@ -7,29 +7,29 @@
 namespace reef
 {
 
-/** Abstract allocator interface. */
+/** A zero-data vtable that hands out and reclaims raw, aligned memory.
+ *  Every allocating function takes one explicitly, so allocation is never
+ *  implicit and an owned type never stores the allocator it was made with. */
 struct Allocator
 {
-    /** Allocate `size` bytes with `align` alignment. */
+    /** Returns `size` bytes aligned to `align`, or null on failure. */
     virtual u8* alloc(usize size, usize align) = 0;
-    /** Free a block previously returned by alloc. */
+    /** Reclaims a block previously returned by alloc with the same size and
+     *  align. */
     virtual void dealloc(u8* ptr, usize size, usize align) = 0;
 };
 
-/** Allocates `count` instances of `T` from `allocator`. */
 template <typename T> inline T* alloc(Allocator* allocator, usize count)
 {
     return (T*)allocator->alloc(sizeof(T) * count, alignof(T));
 }
 
-/** Frees memory from a matching `alloc<T>`. */
 template <typename T>
 inline void dealloc(Allocator* allocator, T* ptr, usize count)
 {
     allocator->dealloc((u8*)ptr, sizeof(T) * count, alignof(T));
 }
 
-/** Allocates and copies `count` trivially-copyable `T` from `src`. */
 template <typename T>
 inline T* copy(Allocator* allocator, const T* src, usize count)
 {
@@ -41,7 +41,6 @@ inline T* copy(Allocator* allocator, const T* src, usize count)
     return dst;
 }
 
-/** Returns the process-wide heap allocator. */
 Allocator* heap_allocator();
 
 }

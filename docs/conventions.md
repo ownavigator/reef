@@ -178,13 +178,32 @@ Comments are always block comments. Use `/** ... */` for documentation and
 The lone exception is the namespace-closing idiom, `} // namespace reef`, which
 the editor writes for us and which would only look strange as a block comment.
 
-Documentation is autobrief: the first sentence is the summary. Put a `/** ... */`
-block on every public declaration and a trailing `/**< ... */` on every struct
-member. Aim for just enough. Document what a caller cannot read off the
-signature, like ownership, units, error behaviour, and lifecycle preconditions,
-and do not narrate what the code already says plainly. A forty-line file has no
-business carrying three hundred lines of Doxygen. Internal statics and local
-logic earn a comment only when they are genuinely surprising.
+Documentation is Doxygen and autobrief: the first sentence is the summary. We
+comment the pivot points, not everything. A `/** ... */` block belongs on every
+struct and enum, where one decisive sentence about what the type is for and how
+it is meant to be used earns its keep, and a trailing `/**< ... */` belongs on
+every struct member and enumerator. Fields are worth annotating; a name plus a
+unit or an ownership note packs more than the type alone.
+
+Functions do not get a doc block by default. A name built from the lifecycle
+verbs and the type already tells you the shape, so most free functions read fine
+bare, and a wall of `/** ... */` blocks down a header is noise we do not want. A
+function earns a block only when it carries something the declaration cannot,
+like ownership transfer, units, error behaviour, or a lifecycle precondition.
+Macros are the other place to reach for a comment, since the preprocessor is
+surprising by nature. When you do comment, document what a caller cannot read off
+the declaration and do not narrate what the code already says plainly. A
+forty-line file has no business carrying three hundred lines of Doxygen, and
+internal statics and local logic earn a comment only when they are genuinely
+surprising.
+
+Write comments as complete sentences in English, with the first word capitalized
+and a closing period, even for a one-line field note. English because the engine
+is read internationally, and full sentences because a fragment forces the reader
+to reconstruct what you meant. A comment should say why the code does what it does
+or what it does at a higher level, not restate the line beneath it. `len` does not
+need a comment that says "the length"; it needs one that says what the length
+counts.
 
 Two small habits. Do not hedge inside parentheses. If something matters, write it
 as a sentence; if it does not, cut it. The "this (and also that) and the other"
