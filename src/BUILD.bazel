@@ -3,7 +3,8 @@ filegroup(
     name = "srcs",
     srcs = [
         "str.cc",
-        "allocator.cc"
+        "allocator.cc",
+        "module.cc",
     ],
     visibility = ["//:__pkg__"],
 )

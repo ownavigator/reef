@@ -1,7 +1,10 @@
 
 #include "reef-allocator.h"
+#include "reef-module.h"
 #include "reef-str.h"
 #include <cstdio>
+
+static char const* JS_PATH = "example.js";
 
 static char const* JS_SOURCE = R"(
 function add(😀, b) {
@@ -11,28 +14,24 @@ function add(😀, b) {
 
 int main()
 {
-    reef::Wide_Str str;
-    if (!reef::wide_str_from_utf8(&str, (reef::u8*)JS_SOURCE,
+    reef::Wide_Str path;
+    if (!reef::wide_str_from_utf8(&path, (reef::u8*)JS_PATH,
+            std::strlen(JS_PATH), reef::heap_allocator()))
+    {
+        return 1;
+    }
+
+    reef::Wide_Str content;
+    if (!reef::wide_str_from_utf8(&content, (reef::u8*)JS_SOURCE,
             std::strlen(JS_SOURCE), reef::heap_allocator()))
     {
         return 1;
     }
 
-    for (reef::usize i = 0; i < str.len;)
-    {
-        reef::i32 codepoint;
-
-        reef::isize advance = reef::wide_str_at(&str, i, &codepoint);
-        if (advance < 0)
-        {
-            std::fprintf(stderr, "Offset %zu: error %zd\n", i, advance);
-            i += 1;
-            continue;
-        }
-
-        std::fprintf(stderr, "Offset %zu: U+%04X\n", i, codepoint);
-        i += (reef::usize)advance;
-    }
-
-    reef::wide_str_drop(&str, reef::heap_allocator());
+    reef::Module module = reef::module_new(path, content);
+    printf("Module path: %.*s\n", (int)module.path.len,
+        (const char*)module.path.ptr);
+    printf("Module content: %.*s\n", (int)module.content.len,
+        (const char*)module.content.ptr);
+    reef::module_drop(&module, reef::heap_allocator());
 }

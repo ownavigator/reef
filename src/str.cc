@@ -6,6 +6,38 @@
 namespace reef
 {
 
+bool str_new(Str* uninit, u8 const* str, usize str_len, Allocator* allocator)
+{
+
+    char const* cptr = (char const*)str;
+
+    if (simdutf::validate_utf8(cptr, str_len) != simdutf::SUCCESS)
+    {
+        return false;
+    }
+
+    u8* ptr = alloc<u8>(allocator, str_len);
+    if (ptr == nullptr)
+    {
+        return false;
+    }
+
+    std::memcpy(ptr, str, str_len);
+    *uninit = str_new_nocopy(ptr, str_len);
+    return true;
+}
+
+isize str_at(Str const* str, usize idx, i32* out_codepoint)
+{
+    assert(idx < str->len);
+    return utf8proc_iterate(str->ptr + idx, str->len - idx, out_codepoint);
+}
+
+void str_drop(Str* str, Allocator* allocator)
+{
+    dealloc(allocator, str->ptr, str->len);
+}
+
 bool wide_str_from_utf8(
     Wide_Str* uninit, u8 const* str, usize str_len, Allocator* allocator)
 {

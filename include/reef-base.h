@@ -2,6 +2,7 @@
 
 #include "reef-macro.h"
 #include <cstdint>
+#include <type_traits>
 
 namespace reef
 {
@@ -31,7 +32,9 @@ typedef i32 isize; /**< pointer-sized signed integer */
 /** RAII guard that runs a callable when it leaves scope. */
 template <typename F> struct Defer
 {
-    F f;
+    static_assert(std::is_invocable_v<F>, "Defer: F must be callable");
+
+    F f; /**< The callable to run */
     ~Defer() { f(); }
 };
 
