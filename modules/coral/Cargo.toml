@@ -1,0 +1,16 @@
+[package]
+name = "coral"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "coral"
+path = "coral.rs"
+
+[dependencies]
+
+# Internal
+reef = { workspace = true }
+
+# External
+mimalloc = { workspace = true }

@@ -1,0 +1,11 @@
+[workspace]
+resolver = "3"
+members = ["modules/reef", "modules/coral"]
+
+[workspace.dependencies]
+
+# Internal
+reef = { path = "modules/reef" }
+
+# External
+mimalloc = { version = "0.1.52", features = ["override"] }
