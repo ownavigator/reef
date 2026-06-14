@@ -1,6 +1,6 @@
 #![no_main]
 
-use std::ffi::CStr;
+use std::{borrow::Cow, ffi::CStr, process};
 
 use mimalloc::MiMalloc;
 
@@ -8,10 +8,7 @@ const USAGE_MESSAGE: &str = concat!(
     "Usage:\n",
     "    ",
     env!("CARGO_PKG_NAME"),
-    " [OPTION...] <SUBCOMMAND> [ARG...]\n",
-    "    ",
-    env!("CARGO_PKG_NAME"),
-    " [OPTION...] <FILE> [OPTION...]\n",
+    " [OPTION...] <FILE>\n",
 );
 
 const HELP_MESSAGE: &str = "\
@@ -33,7 +30,21 @@ enum OptionType {
     ShortLong(char, &'static str),
 }
 
-fn getopt<'opt>(
+fn get_option<'option>(
+    argc: isize,
+    argv: *const *const u8,
+    index: isize,
+) -> Option<Cow<'option, str>> {
+    if index >= argc {
+        return None;
+    }
+
+    let arg_ptr = unsafe { *argv.offset(index) };
+    let arg_str = unsafe { CStr::from_ptr(arg_ptr.cast()).to_string_lossy() };
+    Some(arg_str)
+}
+
+fn parse_option<'opt>(
     option: &'opt str,
     option_type: OptionType,
     out_value: &mut Option<&'opt str>,
@@ -71,16 +82,20 @@ fn getopt<'opt>(
     true
 }
 
-fn print_help<const ERR: bool>() {
+fn print_help<const ERR: bool>() -> ! {
     if ERR {
-        eprintln!("{USAGE_MESSAGE}{HELP_MESSAGE}");
+        eprint!("{USAGE_MESSAGE}{HELP_MESSAGE}");
+        process::exit(1);
     } else {
-        println!("{USAGE_MESSAGE}{HELP_MESSAGE}")
+        print!("{USAGE_MESSAGE}{HELP_MESSAGE}");
+        process::exit(0);
     }
 }
 
-fn print_version() {
-    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))
+#[inline]
+fn print_version() -> ! {
+    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    process::exit(0);
 }
 
 #[unsafe(no_mangle)]
@@ -88,40 +103,43 @@ pub extern "C" fn main(mut argc: isize, argv: *const *const u8) -> isize {
     for i in 1..argc {
         let mut out_value = None;
 
-        let option_raw = unsafe {
-            let option_ptr = *argv.offset(i);
-            if *option_ptr != b'-' {
-                break;
-            }
-
-            &CStr::from_ptr(option_ptr.cast()).to_string_lossy()
+        let option_raw = match get_option(argc, argv, i) {
+            Some(arg) => arg,
+            None => break,
         };
 
-        if getopt(
+        if option_raw.as_bytes()[0] != b'-' {
+            break;
+        }
+
+        argc = argc - 1;
+
+        if parse_option(
             &option_raw[1..],
             OptionType::ShortLong('h', "help"),
             &mut out_value,
         ) {
             print_help::<false>();
-            break;
         }
 
-        if getopt(
+        if parse_option(
             &option_raw[1..],
             OptionType::ShortLong('v', "version"),
             &mut out_value,
         ) {
             print_version();
-            break;
         }
 
-        argc = argc - 1;
+        eprintln!("Unknown option: {option_raw}");
+        print_help::<true>();
     }
 
     if argc == 1 {
         print_help::<true>();
-        return 1;
     }
+
+    let file_path = get_option(argc, argv, 1).unwrap();
+    println!("File path: {}", file_path);
 
     0
 }
