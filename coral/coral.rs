@@ -4,14 +4,15 @@ use std::ffi::CStr;
 
 use mimalloc::MiMalloc;
 
-const PACKAGE_NAME: &str = env!("CARGO_PKG_NAME");
-const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
-
-const USAGE_MESSAGE: &str = "\
-Usage:
-    {exec} [OPTION...] <SUBCOMMAND> [ARG...]
-    {exec} [OPTION...] <FILE> [OPTION...]
-";
+const USAGE_MESSAGE: &str = concat!(
+    "Usage:\n",
+    "    ",
+    env!("CARGO_PKG_NAME"),
+    " [OPTION...] <SUBCOMMAND> [ARG...]\n",
+    "    ",
+    env!("CARGO_PKG_NAME"),
+    " [OPTION...] <FILE> [OPTION...]\n",
+);
 
 const HELP_MESSAGE: &str = "\
 Options:
@@ -71,21 +72,15 @@ fn getopt<'opt>(
 }
 
 fn print_help<const ERR: bool>() {
-    let help = format!(
-        "{usage}\n{help}",
-        usage = USAGE_MESSAGE.replace("{exec}", PACKAGE_NAME),
-        help = HELP_MESSAGE,
-    );
-
     if ERR {
-        eprintln!("{help}");
+        eprintln!("{USAGE_MESSAGE}{HELP_MESSAGE}");
     } else {
-        println!("{help}");
+        println!("{USAGE_MESSAGE}{HELP_MESSAGE}")
     }
 }
 
 fn print_version() {
-    println!("{} {}", PACKAGE_NAME, PACKAGE_VERSION);
+    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))
 }
 
 #[unsafe(no_mangle)]
